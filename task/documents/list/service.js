@@ -5,7 +5,7 @@ const axios = require("axios");
 const fetchDocuments = async (req, res, qObj, callback) => {
     try {
         const page = parseInt(qObj.page) || 1;
-        const limit = parseInt(qObj.limit) || 5;
+        const limit = parseInt(qObj.limit) || 10;
         const skip = (page - 1) * limit;
 
         // 즐겨찾기 모드 체크 (쿼리 파라미터 isFavorite=true 여부)
@@ -50,11 +50,12 @@ const searchDocuments = async (req, res, qObj, callback) => {
             {
                 auth: {
                     username: 'elastic',
-                    password: process.env.ES_PASSWORD || "123!@#qwe"
+                    password: "123!@#qwe"
                 }
             }
         );
-
+        // password: process.env.ES_PASSWORD || "123!@#qwe"
+        
         const hits = esRes.data.hits.hits;
         const result = hits.map(hit => ({
             _id: hit._id,

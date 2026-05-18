@@ -18,10 +18,10 @@ const join = async (qObj, callback) => {
         });
 
         await newUser.save();
-        callback(null, { message: "회원가입이 완료되었습니다!" });
+        callback(null, { message: "회원가입이 완료되었습니다!", result: true });
     } catch (error) {
         if (error.code === 11000) {
-            callback({ status: 400, message: "이미 사용 중인 이메일입니다." });
+            callback({ status: 400, message: "이미 사용 중인 이메일입니다.", result: false });
         } else {
             callback(error);
         }
@@ -35,12 +35,12 @@ const login = async (qObj, res, callback) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return callback({ status: 401, message: "가입되지 않은 이메일입니다." });
+            return callback({ status: 401, message: "가입되지 않은 이메일입니다.", result: false });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return callback({ status: 401, message: "비밀번호가 일치하지 않습니다." });
+            return callback({ status: 401, message: "비밀번호가 일치하지 않습니다.", result: false });
         }
 
         // JWT 생성
@@ -59,8 +59,35 @@ const login = async (qObj, res, callback) => {
             maxAge: 3600000
         });
 
-        callback(null, { name: user.name, email: user.email });
+        callback(null, { name: user.name, email: user.email, result: true });
     } catch (error) {
+        callback(error);
+    }
+};
+
+/**
+ * 로그아웃
+ * @param {String} userId - 로그아웃할 사용자의 고유 ID (또는 email)
+ * @param {Function} callback - 컨트롤러로 결과를 넘겨줄 콜백 함수
+ */
+const logout = async (userId, callback) => {
+    try {
+        // DB에 유저의 마지막 활동 이력이나 로그아웃 시간 기록
+        // (스키마에 필드 생성 후 활성화하여 로그용 남길지 고민중)
+        /*
+        await User.findByIdAndUpdate(
+            userId, 
+            { $set: { lastLogoutAt: new Date() } },
+            { returnDocument: 'after' }
+        );
+        */
+        console.log(`[Service] 사용자 로그아웃 처리 완료: ${userId}`);
+
+        // 성공 결과를 콜백으로 반환
+        callback(null, { result: true, message: '서비스 로그아웃 성공' });
+
+    } catch (error) {
+        console.error('[Service Error] 로그아웃 중 예외 발생:', error);
         callback(error);
     }
 };
@@ -69,10 +96,10 @@ const login = async (qObj, res, callback) => {
 const getMe = async (req, res, qObj, callback) => {
     // 이미 app.was.js의 checkLogin에서 qObj.user에 유저 정보를 담아줬으므로 바로 활용
     if (qObj.user) {
-        callback(null, { user: qObj.user });
+        callback(null, { user: qObj.user, result: true });
     } else {
-        callback({ status: 401, message: "인증되지 않은 사용자입니다." });
+        callback({ status: 401, message: "인증되지 않은 사용자입니다.", result: false });
     }
 };
 
-module.exports = { join, login, getMe };
+module.exports = { join, login, logout, getMe };

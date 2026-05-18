@@ -54,7 +54,7 @@ const processUpload = async (req, res, qObj, callback) => {
             title: newDoc.title,
             content: newDoc.content,
             files: newDoc.files.map(f => ({ originalName: f.originalName, fileUrl: f.fileUrl }))
-        }, { auth: { username: 'elastic', password: process.env.ES_PASSWORD } });
+        }, { auth: { username: 'elastic', password: "123!@#qwe" } });
 
         callback(null, newDoc);
     } catch (e) { callback(e); }
@@ -77,7 +77,7 @@ const updateDocument = async (req, res, qObj, callback) => {
         // ES 업데이트
         await axios.post(`${process.env.ES_URL}/documents/_update/${id}`, {
             doc: { title: doc.title, content: doc.content }
-        }, { auth: { username: 'elastic', password: process.env.ES_PASSWORD } });
+        }, { auth: { username: 'elastic', password: "123!@#qwe" } });
 
         callback(null, doc);
     } catch (e) { callback(e); }
@@ -96,7 +96,7 @@ const deleteDocument = async (req, res, qObj, callback) => {
 
         await Upload.findByIdAndDelete(id);
         await axios.delete(`${process.env.ES_URL}/documents/_doc/${id}`, {
-            auth: { username: 'elastic', password: process.env.ES_PASSWORD }
+            auth: { username: 'elastic', password: "123!@#qwe" }
         });
 
         callback(null, { message: "삭제 성공" });
@@ -107,11 +107,11 @@ const deleteDocument = async (req, res, qObj, callback) => {
 const toggleFavorite = async (req, res, qObj, callback) => {
     try {
         const { id, isFavorite } = qObj;
-        const updated = await Upload.findByIdAndUpdate(id, { isFavorite }, { new: true });
+        const updated = await Upload.findByIdAndUpdate(id, { isFavorite }, { returnDocument: 'after' });
         
         await axios.post(`${process.env.ES_URL}/documents/_update/${id}`, {
             doc: { isFavorite: updated.isFavorite }
-        }, { auth: { username: 'elastic', password: process.env.ES_PASSWORD } });
+        }, { auth: { username: 'elastic', password: "123!@#qwe" } });
 
         callback(null, updated);
     } catch (e) { callback(e); }

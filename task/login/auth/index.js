@@ -4,9 +4,15 @@ const svc = require("./service");
 // POST /api/login/auth (로그인 또는 회원가입)
 const post = async (req, res, qObj) => {
     // 데이터 존재 여부에 따라 서비스에서 처리
+    console.log("qObj ==> ", qObj);
     if (qObj.isSignup) {
         // 회원가입
         svc.join(qObj, (error, result) => {
+            if (error) return util.writeError(error, res);
+            util.writeSuccess(result, res);
+        });
+    } else if(qObj.isLogout){ 
+        svc.logout(qObj, (error, result) => {
             if (error) return util.writeError(error, res);
             util.writeSuccess(result, res);
         });
