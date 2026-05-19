@@ -53,9 +53,9 @@ const login = async (qObj, res, callback) => {
         // 쿠키 저장
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false,   // http 환경(localhost)이므로 false가 맞습니다.
-            sameSite: 'lax', // 'none'으로 설정하면 secure: true가 필수라 로컬에서 깨집니다. 'lax'가 정석입니다.
-            path: '/',       // 모든 경로에서 쿠키를 보낼 수 있도록 지정
+            secure: false,   
+            sameSite: 'lax', 
+            path: '/', 
             maxAge: 3600000
         });
 
