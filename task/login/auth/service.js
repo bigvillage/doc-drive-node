@@ -5,6 +5,7 @@ const SECRET = process.env.JWT_SECRET || "my_secret_key";
 
 // 회원가입
 const join = async (qObj, callback) => {
+    console.log("여기옴?")
     try {
         const { name, email, password } = qObj;
         
@@ -16,9 +17,11 @@ const join = async (qObj, callback) => {
             email,
             password: hashedPassword,
         });
+        console.log("save 완료전");
 
         await newUser.save();
         callback(null, { message: "회원가입이 완료되었습니다!", result: true });
+        console.log("save 완료후");
     } catch (error) {
         if (error.code === 11000) {
             callback({ status: 400, message: "이미 사용 중인 이메일입니다.", result: false });
@@ -33,14 +36,15 @@ const login = async (qObj, res, callback) => {
     try {
         const { email, password } = qObj;
         const user = await User.findOne({ email });
-
+        console.log("user ==> ", user);
         if (!user) {
-            return callback({ status: 401, message: "가입되지 않은 이메일입니다.", result: false });
+            console.log("들어옴?")
+            return callback(null, { status: 401, message: "가입되지 않은 이메일입니다.", result: false });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return callback({ status: 401, message: "비밀번호가 일치하지 않습니다.", result: false });
+            return callback(null, { status: 401, message: "비밀번호가 일치하지 않습니다.", result: false });
         }
 
         // JWT 생성
@@ -70,7 +74,7 @@ const login = async (qObj, res, callback) => {
  * @param {String} userId - 로그아웃할 사용자의 고유 ID (또는 email)
  * @param {Function} callback - 컨트롤러로 결과를 넘겨줄 콜백 함수
  */
-const logout = async (userId, callback) => {
+const logout = async (qObj, res, callback) => {
     try {
         // DB에 유저의 마지막 활동 이력이나 로그아웃 시간 기록
         // (스키마에 필드 생성 후 활성화하여 로그용 남길지 고민중)
@@ -81,7 +85,12 @@ const logout = async (userId, callback) => {
             { returnDocument: 'after' }
         );
         */
-        console.log(`[Service] 사용자 로그아웃 처리 완료: ${userId}`);
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: "/"
+        });
 
         // 성공 결과를 콜백으로 반환
         callback(null, { result: true, message: '서비스 로그아웃 성공' });
@@ -95,10 +104,11 @@ const logout = async (userId, callback) => {
 // 내 정보 가져오기
 const getMe = async (req, res, qObj, callback) => {
     // 이미 app.was.js의 checkLogin에서 qObj.user에 유저 정보를 담아줬으므로 바로 활용
+    console.log("getMe qObj =", qObj);
     if (qObj.user) {
         callback(null, { user: qObj.user, result: true });
     } else {
-        callback({ status: 401, message: "인증되지 않은 사용자입니다.", result: false });
+        callback(null, { status: 401, message: "인증되지 않은 사용자입니다.", result: false });
     }
 };
 

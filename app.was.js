@@ -93,8 +93,8 @@ const setQObj = (req, res, qObj) => {
         qObj.ip = req.headers["x-forwarded-for"] || req.ip;
 
         // 로그인 체크로 이동
-        // checkLogin(req, res, qObj);
-        callTask(req, res, qObj);
+        checkLogin(req, res, qObj);
+        // callTask(req, res, qObj);
     } catch (error) {
         console.error("setQObj Error:", error);
         res.status(500).json({ success: false, message: "Data processing error" });
@@ -102,35 +102,76 @@ const setQObj = (req, res, qObj) => {
 };
 
 // 로그인 체크
-const checkLogin = async (req, res, qObj) => {
-    console.log("Raw Cookie Header:", req.headers.cookie); 
+// const checkLogin = async (req, res, qObj) => {
+//     console.log("Raw Cookie Header:", req.headers.cookie); 
     
-    // 2. 파싱된 객체가 있는지 확인 (이게 안 오면 cookie-parser 위치 문제)
-    console.log("Parsed Cookies:", req.cookies);
+//     // 2. 파싱된 객체가 있는지 확인 (이게 안 오면 cookie-parser 위치 문제)
+//     console.log("Parsed Cookies:", req.cookies);
+//     const url = req.url.toLowerCase().split('?')[0];
+//     const exceptionPath = ["/api/login/auth"];
+
+//     // 예외 경로 확인
+//     const isException = exceptionPath.some(path => url.includes(path));
+
+//     if (isException) {
+//         return callTask(req, res, qObj);
+//     }
+
+//     // JWT 또는 쿠키 기반 인증 체크
+//     const token = req.cookies.token;
+//     console.log("token : ", token);
+//     if (!token) {
+//         return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
+//     }
+
+//     try {
+//         const decoded = jwt.verify(token, "my_secret_key");
+//         // 유저 정보를 qObj에 박아줌
+//         qObj.user = decoded; 
+//         callTask(req, res, qObj);
+//     } catch (err) {
+//         res.status(401).json({ success: false, message: "유효하지 않은 토큰입니다." });
+//     }
+// };
+const checkLogin = async (req, res, qObj) => {
     const url = req.url.toLowerCase().split('?')[0];
-    const exceptionPath = ["/api/login/auth"];
 
-    // 예외 경로 확인
-    const isException = exceptionPath.some(path => url.includes(path));
-
-    if (isException) {
+    // 로그인, 회원가입은 인증 제외
+    if (
+        req.method === "POST" &&
+        url === "/api/login/auth"
+    ) {
         return callTask(req, res, qObj);
     }
 
-    // JWT 또는 쿠키 기반 인증 체크
+    // 👇 여기 추가
+    console.log("===== checkLogin =====");
+    console.log("Method:", req.method);
+    console.log("URL:", req.url);
+    console.log("Cookie Header:", req.headers.cookie);
+    console.log("Cookies:", req.cookies);
+
     const token = req.cookies.token;
-    console.log("token : ", token);
+    console.log("Token:", token);
+
     if (!token) {
-        return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
+        return res.status(401).json({
+            result: false,
+            message: "로그인이 필요합니다."
+        });
     }
 
     try {
         const decoded = jwt.verify(token, "my_secret_key");
-        // 유저 정보를 qObj에 박아줌
-        qObj.user = decoded; 
-        callTask(req, res, qObj);
+
+        qObj.user = decoded;
+
+        return callTask(req, res, qObj);
     } catch (err) {
-        res.status(401).json({ success: false, message: "유효하지 않은 토큰입니다." });
+        return res.status(401).json({
+            result: false,
+            message: "유효하지 않은 토큰입니다."
+        });
     }
 };
 

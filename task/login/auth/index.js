@@ -12,7 +12,7 @@ const post = async (req, res, qObj) => {
             util.writeSuccess(result, res);
         });
     } else if(qObj.isLogout){ 
-        svc.logout(qObj, (error, result) => {
+        svc.logout(qObj, res, (error, result) => {
             if (error) return util.writeError(error, res);
             util.writeSuccess(result, res);
         });
