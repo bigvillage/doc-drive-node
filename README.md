@@ -373,3 +373,25 @@ Dashboard 데이터는 Backend API에서 MongoDB의 문서 데이터를 조회�
 ```
 
 ---
+
+## 📸 주요 화면
+
+### Login
+
+![Login](./docs/images/login.png)
+
+### Dashboard
+
+![Dashboard](./docs/images/dashboard.png)
+
+### Document List
+
+![Document List](./docs/images/doclist.png)
+
+### Document Detail
+
+![Document Detail](./docs/images/docdetail.png)
+
+### Upload
+
+![Upload](./docs/images/upload.png)
