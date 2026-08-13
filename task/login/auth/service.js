@@ -5,7 +5,6 @@ const SECRET = process.env.JWT_SECRET || "my_secret_key";
 
 // 회원가입
 const join = async (qObj, callback) => {
-    console.log("여기옴?")
     try {
         const { name, email, password } = qObj;
         
@@ -38,7 +37,6 @@ const login = async (qObj, res, callback) => {
         const user = await User.findOne({ email });
         console.log("user ==> ", user);
         if (!user) {
-            console.log("들어옴?")
             return callback(null, { status: 401, message: "가입되지 않은 이메일입니다.", result: false });
         }
 
