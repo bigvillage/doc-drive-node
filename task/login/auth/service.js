@@ -101,8 +101,16 @@ const logout = async (qObj, res, callback) => {
 
 // 내 정보 가져오기
 const getMe = async (req, res, qObj, callback) => {
-    // 이미 app.was.js의 checkLogin에서 qObj.user에 유저 정보를 담아줬으므로 바로 활용
     console.log("getMe qObj =", qObj);
+    if (qObj.user) {
+        callback(null, { user: qObj.user, result: true });
+    } else {
+        callback(null, { status: 401, message: "인증되지 않은 사용자입니다.", result: false });
+    }
+};
+
+// 유저 정보찾기
+const findUser = async (req, res, qObj, callback) => {
     if (qObj.user) {
         callback(null, { user: qObj.user, result: true });
     } else {
